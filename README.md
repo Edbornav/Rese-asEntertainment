@@ -1,57 +1,62 @@
 # Entertainment Reviews
 
-Plataforma de reseñas de entretenimiento (películas, series, animes, música y videojuegos).
-Desarrollada con C# (.NET 8), MongoDB 8 (Atlas) y frontend en HTML/CSS/JS vanilla.
+**Alumno:** [TU NOMBRE] — **Matrícula:** [TU MATRÍCULA] — **Grupo:** [TU GRUPO]  
+**Tema:** Plataforma de reseñas de entretenimiento con persistencia en MongoDB 7
+
+Plataforma donde los usuarios pueden explorar un catálogo de videojuegos, películas, series, animes y música, escribir reseñas con calificaciones, y solicitar nuevos ítems. Los datos persisten en MongoDB Atlas y el backend está desarrollado en C# (.NET 8).
 
 ## Entidades y relación
-- **catalog_items**: ítems del catálogo (videojuegos, películas, series, animes, música)
-- **reviews**: reseñas de usuarios vinculadas a un ítem
-- **Relación**: Referencia por ObjectId. Se eligió referencia porque las reseñas
-  tienen ciclo de vida independiente y necesitamos consultas eficientes por ítem y por usuario.
+
+| Entidad | Colección | Descripción |
+|---|---|---|
+| CatalogItem | `catalog_items` | Ítems del catálogo con título, categoría, portada, creador y descripción |
+| Review | `reviews` | Reseñas de usuarios vinculadas a un ítem, con comentario y calificación (1-10) |
+
+**Relación:** Referencia por ObjectId.  
+**¿Por qué?** Las reseñas tienen ciclo de vida independiente (se crean y eliminan sin modificar el ítem), necesito consultarlas tanto por ítem como por usuario, y un ítem popular puede tener cientos de reseñas — embebidas harían el documento del ítem demasiado grande.
 
 ## Versión de MongoDB
-MongoDB 8.x (verificado en Atlas — captura en `/docs/atlas-version.png`)
 
-> ⚠️ Nota: MongoDB Atlas en su capa gratuita M0 actualmente solo permite MongoDB 8.
-> El proyecto del curso indica versión 7, pero Atlas ya no la ofrece en nuevos clusters.
-> Se usa MongoDB 8, que es totalmente compatible con todas las operaciones requeridas.
+MongoDB **7.0.[X]** — confirmado en Atlas (ver captura en `docs/`).
+
+## Cómo correr el seed
+
+El seed.js registra usuarios vía la API REST y luego inserta ítems y reseñas directamente en MongoDB.
+
+```bash
+# Instalar dependencias
+npm install mongodb
+
+# Configurar variables
+$env:API_URL="http://localhost:5000/api"
+$env:MONGO_URI="mongodb+srv://admin:Demo1234@cluster.mongodb.net/entertainment_reviews"
+
+# Ejecutar
+node seed.js
+```
+
+Los usuarios creados:
+- **demo@demo.com** / **Demo1234** — rol: admin
+- **user@test.com** / **User1234** — rol: user
 
 ## Stack tecnológico
 
 | Capa | Tecnología |
 |---|---|
-| Base de datos | MongoDB 8 (Atlas, cluster M0 gratuito) |
+| Base de datos | MongoDB 7 (Atlas M0) |
 | Backend | C# (.NET 8) |
-| Autenticación | JWT (JSON Web Tokens) |
+| Autenticación | JWT + BCrypt |
 | ODM | MongoDB.Driver |
-| Frontend | HTML, CSS y JavaScript vanilla |
-| Repositorio | GitHub público |
+| Frontend | HTML, CSS y JavaScript vanilla (SPA) |
+| Hosting | Render (API) + Vercel (frontend) |
 
-## Cómo correr el seed
-
-### Opción 1: Node.js
-```bash
-npm install mongodb bcryptjs dotenv
-MONGODB_URI=mongodb+srv://usuario:pass@cluster.mongodb.net/entertainment_reviews node seed.js
-```
-
-### Opción 2: C#
-```bash
-dotnet run --project EntertainmentReviews.Seed
-```
-
-## Usuario demo
-- **Email:** demo@demo.com
-- **Password:** Demo1234
-- **Rol:** admin
-
-## Estructura del proyecto
+## Estructura
 
 ```
-ENTERTAINMENT_REVIEWS_FRONT/    → Frontend HTML/CSS/JS
+ENTERTAINMENT_REVIEWS_FRONT/    → Frontend SPA (HTML/CSS/JS)
 EntertainmentReviews.API/       → Backend .NET 8
-seed.js                         → Script de seed para MongoDB
-docs/                           → Capturas de pantalla
+seed.js                         → Script de seed
+docs/                           → Capturas y script MongoDB
 ```
 
 ## Endpoints principales
@@ -62,7 +67,11 @@ docs/                           → Capturas de pantalla
 | POST | `/api/auth/login` | No | Iniciar sesión |
 | GET | `/api/catalog` | No | Listar catálogo |
 | GET | `/api/catalog/{id}` | No | Detalle de ítem |
+| POST | `/api/catalog` | Admin | Crear ítem |
+| PUT | `/api/catalog/{id}` | Admin | Editar ítem |
+| DELETE | `/api/catalog/{id}` | Admin | Eliminar ítem |
+| GET | `/api/catalog/{id}/reviews` | No | Ver reseñas de un ítem |
 | POST | `/api/catalog/{id}/reviews` | Sí | Crear reseña |
-| GET | `/api/catalog/{id}/reviews` | No | Ver reseñas |
-| POST | `/api/requests` | Sí | Solicitar ítem |
-| PUT | `/api/requests/{id}/approve` | Admin | Aprobar solicitud |
+| PUT | `/api/reviews/{id}` | Sí | Editar reseña propia |
+| DELETE | `/api/reviews/{id}` | Sí | Eliminar reseña (dueño o admin) |
+| GET | `/api/reviews/user/{userId}` | Sí | Reseñas de un usuario |
