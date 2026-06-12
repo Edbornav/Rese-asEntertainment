@@ -1,7 +1,7 @@
 # Entertainment Reviews
 
-**Alumno:** [TU NOMBRE] — **Matrícula:** [TU MATRÍCULA] — **Grupo:** [TU GRUPO]  
-**Tema:** Plataforma de reseñas de entretenimiento con persistencia en MongoDB 7
+**Alumno:** Eduardo Borquez Navarrete — **Matrícula:** 24040446 — **Grupo:** 01
+**Tema:** Plataforma de reseñas de entretenimiento con persistencia en MongoDB 8.0.26
 
 Plataforma donde los usuarios pueden explorar un catálogo de videojuegos, películas, series, animes y música, escribir reseñas con calificaciones, y solicitar nuevos ítems. Los datos persisten en MongoDB Atlas y el backend está desarrollado en C# (.NET 8).
 
